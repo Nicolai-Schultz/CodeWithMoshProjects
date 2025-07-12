@@ -2,6 +2,7 @@ import java.text.NumberFormat;
 import java.util.Scanner;
 import java.util.Locale;
 
+// Mortgage calculator class
 class MortgageCalculator {
     private final int principal;
     private final double annualInterest;
@@ -23,19 +24,41 @@ class MortgageCalculator {
     }
 }
 
+
 public class Main {
     public static void main(String[] args) {
+
         NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
         Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
 
-        System.out.print("Principal: ");
-        int principal = scanner.nextInt();
+        // implementing do-while for error handling
+        int principal = 0;
+        do{
+            System.out.print("Principal ($1K - $1M): ");
+            principal = scanner.nextInt();
+            if(!(1000 <= principal && principal <= 1_000_000)){
+                System.out.print("Enter a number between 1000 and 1_000_000." + "\n");
+            }
+        } while(!(1000 <= principal && principal <= 1_000_000));
 
-        System.out.print("Annual Interest Rate: ");
-        double interestRate = scanner.nextDouble();
+        double interestRate = 0;
+        do{
+            System.out.print("Annual Interest Rate: ");
+            interestRate = scanner.nextDouble();
+            if(!(0 < interestRate && interestRate <= 30)){
+                System.out.print("Enter a number between 0 and 30." + "\n");
+            }
+        } while(!(0 < interestRate && interestRate <= 30));
 
-        System.out.print("Period (Years): ");
-        int period = scanner.nextInt();
+        int period = 0;
+        do{
+            System.out.print("Period (Years): ");
+            period = scanner.nextInt();
+            if(!(0 < period && period <= 30)){
+                System.out.print("Enter a number between 0 and 30." + "\n");
+            }
+        } while(!(0 < period && period <= 30));
+
 
         MortgageCalculator calculator = new MortgageCalculator(principal, interestRate, period);
         double mortgageCalculation = calculator.calculateMonthlyPayment();
