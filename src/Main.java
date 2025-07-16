@@ -2,68 +2,105 @@ import java.text.NumberFormat;
 import java.util.Scanner;
 import java.util.Locale;
 
-// Mortgage calculator class
-class MortgageCalculator {
-    private final int principal;
-    private final double annualInterest;
-    private final int years;
-
-    public MortgageCalculator(int principal, double annualInterest, int years) {
-        this.principal = principal;
-        this.annualInterest = annualInterest;
-        this.years = years;
-    }
-
-    public double calculateMonthlyPayment() {
-        double monthlyInterest = annualInterest / 100 / 12;
-        int numberOfPayments = years * 12;
-
-        return principal *
-                (monthlyInterest * Math.pow(1 + monthlyInterest, numberOfPayments)) /
-                (Math.pow(1 + monthlyInterest, numberOfPayments) - 1);
-    }
-}
 
 
 public class Main {
     public static void main(String[] args) {
 
+        int principal = (int) readNumber("Principal", 1000, 1000000);
+        float annualInterest = (float) readNumber("Annual interest rate", 1, 30);
+        byte years = (byte) readNumber("Period (years)", 1, 30);
+
+        double mortgageCalculation = calculateMortgage(principal, annualInterest, years);
+        String resultOfMortgageCalculationInUsd = outputInCurrency(mortgageCalculation);
+
+        outputInCorrectFormat(resultOfMortgageCalculationInUsd, principal, annualInterest, years);
+    }
+
+    public static String outputInCurrency(double input){
         NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
+        return currency.format(input);
+    }
+
+    public static void outputInCorrectFormat(String monthlyPayment,
+                                             int principal,
+                                             float annualInterest,
+                                             byte years){
+        // monthly payment output
+        System.out.print("""
+        MORTGAGE
+        --------
+        Monthly Payment:""" + " " + monthlyPayment);
+
+        // payment schedule output
+        System.out.print("""
+                
+                PAYMENT SCHEDULE
+                --------
+                """);
+        printPayments(principal, annualInterest, years);
+    }
+
+    public static double readNumber(String prompt, double min, double max){
         Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
+        double value;
+        while (true) {
+            System.out.print(prompt + ": ");
+            value = scanner.nextFloat();
+            if (value >= min && value <= max)
+                break;
+            System.out.print("Enter a number between" + min + " and " + max + "\n");
+        }
+        return value;
+    }
 
-        // implementing do-while for error handling
-        int principal = 0;
-        do{
-            System.out.print("Principal ($1K - $1M): ");
-            principal = scanner.nextInt();
-            if(!(1000 <= principal && principal <= 1_000_000)){
-                System.out.print("Enter a number between 1000 and 1_000_000." + "\n");
-            }
-        } while(!(1000 <= principal && principal <= 1_000_000));
+    public static double calculateMortgage(int principal,
+                                           float annualInterest,
+                                           byte years) {
+        final byte MONTHS_IN_YEAR = 12;
+        final byte PERCENT = 100;
 
-        double interestRate = 0;
-        do{
-            System.out.print("Annual Interest Rate: ");
-            interestRate = scanner.nextDouble();
-            if(!(0 < interestRate && interestRate <= 30)){
-                System.out.print("Enter a number between 0 and 30." + "\n");
-            }
-        } while(!(0 < interestRate && interestRate <= 30));
+        short numberOfPayments = (short)(years * MONTHS_IN_YEAR);
+        float monthlyInterest = annualInterest / PERCENT / 12;
+        double mortgageCalculation = principal *
+                (monthlyInterest * Math.pow(1 + monthlyInterest, numberOfPayments)) /
+                (Math.pow(1 + monthlyInterest, numberOfPayments) - 1);
 
-        int period = 0;
-        do{
-            System.out.print("Period (Years): ");
-            period = scanner.nextInt();
-            if(!(0 < period && period <= 30)){
-                System.out.print("Enter a number between 0 and 30." + "\n");
-            }
-        } while(!(0 < period && period <= 30));
+        return mortgageCalculation;
+    }
 
+    public static double calculatePayments(int principal,
+                                           float annualInterest,
+                                           byte years,
+                                           int numberOfPaymentsMade){
+        final byte MONTHS_IN_YEAR = 12;
+        final byte PERCENT = 100;
 
-        MortgageCalculator calculator = new MortgageCalculator(principal, interestRate, period);
-        double mortgageCalculation = calculator.calculateMonthlyPayment();
-        String resultOfMortgageCalculationInUsd = currency.format(mortgageCalculation);
+        float monthlyInterest = annualInterest / PERCENT / 12;
+        short numberOfPayments = (short)(years * MONTHS_IN_YEAR);
+        // Number of payments made is always 1 at the start
 
-        System.out.print("Mortgage: " + resultOfMortgageCalculationInUsd);
+        double payments = (principal *
+                ( Math.pow((1 + monthlyInterest),numberOfPayments) -
+                        Math.pow((1 + monthlyInterest),numberOfPaymentsMade))) /
+                (Math.pow((1 + monthlyInterest),numberOfPayments) - 1);
+
+        return payments;
+    }
+
+    public static void printPayments(int principal,
+                                     float annualInterest,
+                                     byte years){
+        int numberOfPaymentsMade = 1;
+        double payments = 1;
+
+        while(payments != 0){
+            payments = calculatePayments(principal, annualInterest, years, numberOfPaymentsMade);
+            // print payment
+            System.out.print(outputInCurrency(payments) + "\n");
+
+            // iterate number of payments made
+            numberOfPaymentsMade++;
+        }
     }
 }
