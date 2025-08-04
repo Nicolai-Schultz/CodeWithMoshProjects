@@ -5,15 +5,16 @@ import java.util.Locale;
 
 
 public class Main {
-    public static void main(String[] args) {
+    public static final byte MONTHS_IN_YEAR = 12;
+    public static final byte PERCENT = 100;
 
+    public static void main(String[] args) {
         int principal = (int) readNumber("Principal", 1000, 1000000);
         float annualInterest = (float) readNumber("Annual interest rate", 1, 30);
         byte years = (byte) readNumber("Period (years)", 1, 30);
 
         double mortgageCalculation = calculateMortgage(principal, annualInterest, years);
         String resultOfMortgageCalculationInUsd = outputInCurrency(mortgageCalculation);
-
         outputInCorrectFormat(resultOfMortgageCalculationInUsd, principal, annualInterest, years);
     }
 
@@ -57,8 +58,6 @@ public class Main {
     public static double calculateMortgage(int principal,
                                            float annualInterest,
                                            byte years) {
-        final byte MONTHS_IN_YEAR = 12;
-        final byte PERCENT = 100;
 
         short numberOfPayments = (short)(years * MONTHS_IN_YEAR);
         float monthlyInterest = annualInterest / PERCENT / 12;
@@ -73,8 +72,6 @@ public class Main {
                                            float annualInterest,
                                            byte years,
                                            int numberOfPaymentsMade){
-        final byte MONTHS_IN_YEAR = 12;
-        final byte PERCENT = 100;
 
         float monthlyInterest = annualInterest / PERCENT / 12;
         short numberOfPayments = (short)(years * MONTHS_IN_YEAR);
